@@ -1,0 +1,319 @@
+{% extends "base.html" %}
+{% block title %}{{data.movie_title.zh_tw}}{% endblock title%}
+{% block content%}
+<style>
+    .mvbox{
+        width: 100%;
+        height: 450px;
+    }
+    .background{
+        background-color:rgb(28, 28, 28);
+        background-image: url("{{data.poster_url}}");
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        filter: blur(10px) brightness(30%);
+        position: absolute;
+        width: 100%;
+        height: 450px;
+        z-index: -100;
+    }
+
+</style>
+<div id="App">
+    <nav class="navbar navbar-dark bg-dark animate__slideInDown animate__animated animate__faster">
+        <div class="container-fluid container">
+            <a class="btn btn-outline-secondary me-2" :href="'../?peoples='+option.peoples" type="button"><i class="fas fa-arrow-left"></i> 返回</a>
+        </div>
+    </nav>
+    <div class="mvbox">
+        <div class="background"></div>
+        <div class="d-flex flex-row align-items-end container animate__zoomIn animate__animated">
+            <div>
+                <img src="{{data.poster_url}}" class="shadow-lg" style="height:400px;margin-top:25px;margin-bottom:25px">
+            </div>
+            <div class="m-5">
+                <h1><b>{{data.movie_title.zh_tw}}</b></h1>
+                <h3>{{data.movie_title.en_us}}</h3>
+                <div class="mt-4"><p><i style="color:rgb(197, 197, 197)" class="fas fa-calendar-alt"></i> 上映時間 :  [[ moment({{data.release_date}}).year() ]] 年</p></div>
+                <div class="row">
+                    <div class="col-2"><p class="text-nowrap"><i style="color:orange" class="fab fa-imdb"></i>  {{ data.imdb_score }}</p></div>
+                    <div class="col-2"><p class="text-nowrap"><img style="padding-bottom:10px" height="30px" src="https://www.rottentomatoes.com/assets/pizza-pie/images/favicon.ico">  {{ data.rt_score }}</p></div>
+                </div>
+            </div>
+        </div>
+    </div>
+    
+    <nav id="navbar-main" style="background-color: #1a1d21!important;border-bottom: solid 1px rgb(172, 172, 172);" class="navbar navbar-expand-lg navbar-dark bg-dark bg-light px-3">
+        <ul class="navbar-nav container">
+          <li class="nav-item">
+            <a class="nav-link" href="#Plot">劇情大綱</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#Trailer">預告片</a>
+          </li>
+          <li class="nav-item">
+            <a class="nav-link" href="#Ticket">位置資訊</a>
+          </li>
+        </ul>
+    </nav>
+    
+    <div id="body" class="container p-3 animate__fadeIn animate__animated animate__faster" data-bs-target="#navbar-main">
+        <div class="mb-3" id="Plot">
+            <div>
+                <h1>劇情大綱</h1>
+                <!--  -->
+                <div style="line-height: 2.0;color:rgb(174, 174, 174)">
+                    {{data.movie_description}}
+                </div>
+                <!--  -->
+            </div>
+        </div>
+        <hr>
+        <div class="mb-3" id="Trailer">
+            <div>
+                <h1>預告片</h1>
+                <!--  -->
+                <div class="">
+                    {% for item in data.movie_preview %}
+                    {% if 'http' in item.preview_link %}
+                        <iframe width='100%' height='600px' src='{{item.preview_link}}' frameborder='0' allowfullscreen></iframe>
+                    {%endif %}
+                    {% endfor %}
+                </div>
+    
+                <!--  -->
+            </div>
+        </div>
+        <hr>
+        <div class="mb-3" id="Ticket">
+            <!-- tab -->
+            <template v-if="option.page=='select_cinema'">
+                <div class="row">
+                    <h1>位置資訊</h1>
+                    <!--  -->
+                    <div class="mb-3 col">
+                    <label class="form-label">地區</label>
+                        <select class="form-select" name="area" v-model="option['area']">
+                            <option value="0">全部</option>
+                            <option value="1">雙北</option>
+                            <option value="2">桃園</option>
+                            <option value="3">新竹</option>
+                            <option value="4">台中</option>
+                            <option value="5">台南</option>
+                            <option value="6">高雄</option>
+                            <option value="7">屏東</option>
+                            <option value="8">宜蘭</option>
+                            <option value="9">苗栗</option>
+                            <option value="10">澎湖</option>
+                            <option value="11">花蓮</option>
+                            <option value="12">台東</option>
+                        </select>
+                    </div>
+                    <div class="mb-3 col">
+                        <label class="form-label">人數</label>
+                        <input name="peoples" type="number" class="form-control" id="peoples" value="1" v-model="option['peoples']">
+                    </div>
+                    <!--  -->
+                </div>
+                <section class="animate__fadeIn animate__animated">
+                    <template v-for="item in data" v-if="option.area==0 || item.location==option.area">
+                        <hr>
+                        <h3>[[ locationId[item.location] ]]</h3>
+                        <div class="row">
+                            <div class="col-3" v-for="item in item.cinema_list">
+                                <button type="button" v-on:click="option.page='seatPage';option.select_cinema=item.cinema_id;getCinemaTimes();" class="btn btn-outline-light w-100 m-3">[[item.cinema_name.zh_tw]]</button>
+                            </div>
+                        </div>
+                    </template>
+                </section>
+            </template>
+            <!--  tab   -->
+
+            <!-- tab 2 -->
+            <template v-if="option.page=='seatPage'">
+                <h1>位置資訊</h1>
+                <h4>[[ cinemaData.booking_info.cinema_name.zh_tw ]] - [[ cinemaData.booking_info.movie_title.zh_tw ]] </h4>
+                <div class="mb-3 col">
+                    <label class="form-label">人數</label>
+                    <input name="peoples" type="number" class="form-control" id="peoples" value="1" v-model="option['peoples']">
+                </div>
+                <div class="animate__fadeIn animate__animated animate__faster">
+                    <a class="btn btn-outline-secondary my-2 w-100" v-on:click="option.page='select_cinema';option.select_cinema='';cinemaData={};" type="button"><i class="fas fa-arrow-left"></i> 返回</a>
+                    <hr>
+                    <span>圖例 : </span>
+                    <button type="button" class="btn btn-outline-danger">座位不夠</button>
+                    <button type="button" class="btn btn-outline-dark" style="border-color:#AA66CC;color:white">座位充足</button>
+                    <div v-for="item in cinemaData.list">
+                        <h5><span class="badge bg-primary">[[item.movie_version]]</span></h5>
+                        <!--  -->
+                        <div class="card">
+                            <div class="card-header">
+                                [[moment(item.date).format("MM 月 DD 日")]]
+                            </div>
+                            <div class="card-body">
+                                <template  v-for="(tags, index) in item.sdata">
+                                    <hr v-if="index!=0">
+                                    <h3 class="card-title">
+                                        <p class="badge bg-dark">[[tags.movie_version]]</p>
+                                    </h3>
+                                    <div class="row row-cols-auto">
+                                        <div class="col my-1" v-for="session in tags.data_session">
+                                            <button class="btn btn-outline-dark" v-if="session.left_seats>=option.peoples" v-on:click="callSwal(session,cinemaData.booking_info)" style="border-color:#AA66CC;color:white">[[ moment(session.session_time).format("HH:mm") ]]</button>
+                                            <button class="btn btn-outline-danger" v-else v-on:click="callSwal(session,cinemaData.booking_info)">[[ moment(session.session_time).format("HH:mm") ]]</button>
+                                        </div>
+                                    </div>
+                                </template>
+      
+                            </div>
+                        </div>
+                         <!--  -->
+                    </div>
+                    <a class="btn btn-outline-secondary my-5 w-100" v-on:click="option.page='select_cinema';option.select_cinema='';cinemaData={};" type="button"><i class="fas fa-arrow-left"></i> 返回</a>    
+                </div>
+            </template>
+
+            <!-- tab 2 -->
+
+        </div>
+    </div>
+</div>
+
+
+<script>
+/*! Main */
+jQuery(document).ready(function($) {
+  
+    // Fixa navbar ao ultrapassa-lo
+    var navbar = $('#navbar-main'),
+    		distance = navbar.offset().top,
+        $window = $(window);
+
+    $window.scroll(function() {
+        if ($window.scrollTop() >= distance) {
+            navbar.removeClass('fixed-top').addClass('fixed-top');
+          	$("body").css("padding-top", "70px");
+        } else {
+            navbar.removeClass('fixed-top');
+            $("body").css("padding-top", "0px");
+        }
+    });
+});
+
+
+var app = new Vue({
+    el: "#App",
+    data() {
+      return {
+        option:{
+          page:"select_cinema",
+          select_cinema:"",
+          lang:'zh',
+          peoples:1,
+          search:"",
+          area:"0",
+        },
+        loading:false,
+        status:"",
+        data:[],
+        cinemaData:{
+            
+            },
+        locationId:{
+            "1":"雙北",
+            "2":"桃園",
+            "3":"新竹",
+            "4":"台中",
+            "5":"台南",
+            "6":"高雄",
+            "7":"屏東",
+            "8":"宜蘭",
+            "9":"苗栗",
+            "10":"澎湖",
+            "11":"花蓮",
+            "12":"台東",
+        }
+      };
+    },
+    mounted() {
+        this.getCinema();
+    },
+    methods: {
+      getCinema() {
+        this.loading=true;
+        fetch(`{{ url_for('api_getCinema',id=id) }}`).then((res) => res.json()).then((data) => {
+          if(data['status']=='succ'){
+            this.loading=false;
+            this.data = data['data'];
+            this.status = 'succ';
+          }else{
+            this.loading=false;
+            throw new Error(data['status']);;
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+          this.status = 'err';
+        });
+      },
+      getCinemaTimes() {
+        this.loading=true;
+        fetch(`/api/getMovieTime/{{id}}/${this.option.select_cinema}`).then((res) => res.json()).then((data) => {
+          if(data['status']=='succ'){
+            this.loading=false;
+            this.cinemaData = data['data'];
+            this.status = 'succ';
+          }else{
+            this.loading=false;
+            throw new Error(data['status']);;
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+          this.status = 'err';
+        });
+      },
+      callSwal(data,moviedata){
+        Swal.fire(
+            {
+                grow:"fullscreen",
+                title:"場次資訊",
+                html:`
+                <div class="container" style="width:600px">
+                    <ul class="list-group">
+                        <li class="text-white bg-dark list-group-item d-flex justify-content-between align-items-center">
+                            電影名稱
+                            <span class="">${moviedata.movie_title.zh_tw}</span>
+                        </li>
+                        <li class="text-white bg-dark list-group-item d-flex justify-content-between align-items-center">
+                            影院
+                            <span class="">${moviedata.cinema_name.zh_tw}</span>
+                        </li>
+                        <li class="text-white bg-dark list-group-item d-flex justify-content-between align-items-center">
+                            時間
+                            <span class="badge text-dark bg-light">${moment(data.session_time).format('YYYY/MM/DD HH:mm')}</span>
+                        </li>
+                        <li class="text-white bg-dark list-group-item d-flex justify-content-between align-items-center">
+                        座位狀態
+                        <span class="badge bg-primary rounded-pill">${data.left_seats}/${data.total_seats}</span>
+                        </li>
+                    </ul>
+                </div>
+                `,
+                showCloseButton: true,
+                showCancelButton: false,
+                showConfirmButton: false
+            }
+          )
+      }
+    },
+    delimiters: ["[[", "]]"],
+  });
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  if(urlParams.get('peoples')){
+    app.option.peoples = parseInt(urlParams.get('peoples'));
+  }
+
+</script>
+{% endblock content%}

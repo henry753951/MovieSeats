@@ -1,0 +1,26 @@
+<head>
+    <title>{% block title%}{% endblock title%}</title>
+    <link href="../bootstrap.min.css" rel="stylesheet">
+    <script src="../jquery-3.6.0.min.js"></script>
+    <script src="../bootstrap.min.js"></script>
+    <script src="../vue.min.js"></script>
+    <link href="//cdn.jsdelivr.net/npm/@sweetalert2/theme-dark@4/dark.css" rel="stylesheet">
+    <script src="//cdn.jsdelivr.net/npm/sweetalert2@11/dist/sweetalert2.min.js"></script>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/animate.css/4.1.1/animate.min.css"/>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/moment.js/2.29.1/moment.min.js" integrity="sha512-qTXRIMyZIFb8iQcfjXWCO8+M5Tbc38Qi5WzdPOYZHIlZpzBHG3L3by84BBBOiRGiEb7KKtAOAs5qYdUiZiQNNQ==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <link rel="stylesheet" href="https://pro.fontawesome.com/releases/v5.10.0/css/all.css" integrity="sha384-AYmEC3Yw5cVb3ZcuHtOA93w35dYTsvhLPVnYs9eStHfGJvOvKxVfELGroGkvsg+p" crossorigin="anonymous"/>
+</head>
+<style>
+  body {
+    color: rgb(255, 255, 255);
+  }
+  .card {
+    background-color:#252a2e;
+  }
+</style>
+
+<body class="bg-dark">
+
+  {% block content %} {% endblock content %}
+
+</body>

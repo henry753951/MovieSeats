@@ -1,0 +1,139 @@
+{% extends "base.html" %}
+{% block title %}電影位置查詢{% endblock title%}
+{% block content%}
+<style>
+  .card {
+    transition-duration: 0.5s!important;
+  }
+  .card:hover{
+    transform: scale(1.1);
+    z-index: 100;
+  }
+</style>
+<div id="body" class="container p-3" hidden :hidden="pageload">
+
+  <div class="mb-3 text-center">
+    <h3>電影位置查詢</h3>
+  </div>
+  <div class="mb-3">
+    <button type="button" v-on:click="getMovies()" style="width:100%;background-color:#AA66CC" class="btn btn-dark">
+      <a v-if="!loading">刷新</a>
+      <a v-if="loading">刷新中...</a>
+    </button>
+  </div>
+  <!-- err -->
+  <div class="alert alert-danger" v-if="status=='err'" role="alert">
+    發生錯誤!
+  </div>
+  <!-- end err -->
+  <div class="mb-3 col">
+    <label class="form-label">人數</label>
+    <input name="peoples" type="number" class="form-control" id="peoples" value="1" v-model="option['peoples']">
+  </div>
+  <hr>
+
+  <div class="mb-3">
+    <label class="form-label">搜尋</label>
+    <input class="form-control" placeholder="請輸入關鍵字..." v-model="option['search']">
+  </div>
+  <div class="mb-3 row" align="center">
+
+    <div class="w-100 align-items-center">
+      <div v-if="loading" class="spinner-border" role="status">
+        <span class="visually-hidden">Loading...</span>
+      </div>
+    </div>
+
+    <div class="w-100 align-items-center">
+      <div class="alert alert-dark animate__fadeInUp animate__animated" v-if="!loading && movies.length==0">找不到結果</div>
+      <div class="alert alert-dark animate__fadeInUp animate__animated" v-if="status=='succ' && !loading" role="alert">一共找到[[ movies.length ]]部電影!</div>
+    </div>
+
+
+    <div class="col my-3 animate__fadeInUp animate__animated animate__delay-.5s" v-for="item in movies" v-if="item.movie_title.zh_tw.includes(option['search']) || item.movie_title.en_us.includes(option['search'])">
+      <div class="card shadow" style="width: 18rem;height:100%;cursor:pointer" v-on:click="window.location.href = '../movie/'+item.movie_id+'?peoples='+option.peoples;">
+        <img  :src="item.poster_url" class="card-img-top img-fluid animate__fadeIn animate__animated" style="height: 410px;" onerror="this.src='../no-poster.jpg'">
+        <div class="card-body">
+
+          <div style="height:60px">
+            <h5 class="card-title" v-if="option.lang == 'zh'">[[ item.movie_title.zh_tw ]]</h5>
+            <h5 class="card-title" v-if="option.lang == 'en'">[[ item.movie_title.en_us ]]</h5>              
+          </div>
+
+          <div class="card-text row">
+            <div class="col-4 col-2"><p><i style="color:rgb(197, 197, 197)" class="fas fa-calendar-alt"></i>  [[ moment(item.release_date).year() ]]</p></div>
+            <div align="right" v-if="item.imdb_score!='0'" class="col-4"><p><i style="color:orange" class="fab fa-imdb"></i>  [[ item.imdb_score ]]</p></div>
+            <div align="right" v-if="item.rt_score!='0.0%'" class="col-4"><p class="text-nowrap"><img style="padding-bottom:10px" height="30px" src="https://www.rottentomatoes.com/assets/pizza-pie/images/favicon.ico">  [[ item.rt_score ]]</p></div>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>
+
+<script>
+
+  var app = new Vue({
+    el: "#body",
+    data() {
+      return {
+        option:{
+          lang:'zh',
+          peoples:1,
+          search:"",
+        },
+        status:'',
+        select_movie:"",
+        movies:[],
+        loading:false,
+        pageload:false
+      };
+    },
+    mounted() {
+      this.getMovies();
+    },
+    methods: {
+      getMovies() {
+        this.loading=true;
+        fetch(`{{ url_for('api_getMovies') }}`).then((res) => res.json()).then((data) => {
+          if(data['status']=='succ'){
+            this.loading=false;
+            this.movies = data['data'];
+            this.status = 'succ';
+          }else{
+            this.loading=false;
+            throw new Error(data['status']);;
+          }
+        })
+        .catch((error) => {
+          console.log(error);
+          this.status = 'err';
+        });
+      },
+      getMovieDetails(name,id){
+        fetch(`https://api.themoviedb.org/3/search/movie?api_key=850a5d58a0fa15230c06791926aab518&query=${name}&language=zh-TW`).then((res) => res.json()).then((data) => {
+          $("#overview-"+id).text(data['results'][0]['overview']);
+          $("#release_date-"+id).text(data['results'][0]['release_date']);
+          $("#rate-"+id).text(data['results'][0]['vote_average']);
+          var img = document.getElementById("img-"+id);
+          img.src='https://www.themoviedb.org/t/p/w600_and_h900_bestv2/'+data['results'][0]['poster_path'];
+        })
+        .catch((error) => {
+          $("#release_date-"+id).text('');
+          $("#rate-"+id).text('');
+          $("#overview-"+id).text('無資料');
+          var img = document.getElementById("img-"+id);
+          img.src='no-poster.jpg';
+          console.log(error);
+        });
+      }
+    },
+    delimiters: ["[[", "]]"],
+  });
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  if(urlParams.get('peoples')){
+    app.option.peoples = parseInt(urlParams.get('peoples'));
+  }
+</script>
+{% endblock content%}
