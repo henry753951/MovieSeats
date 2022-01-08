@@ -2,7 +2,11 @@ import requests,time,json
 from bs4 import BeautifulSoup
 from datetime import datetime
 from flask import Flask, jsonify, make_response, redirect, render_template, url_for, send_from_directory, request
+import urllib3
 
+requests.packages.urllib3.disable_warnings()
+requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS += ':HIGH:!DH:!aNULL'
+requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS += 'DEFAULT@SECLEVEL=1'
 
 def get_ranking():
 	r = requests.get("https://www.ezding.com.tw/new_ezding/ranking_list/order_top?page=1&page_size=100000").json()
