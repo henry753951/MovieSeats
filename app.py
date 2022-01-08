@@ -2,7 +2,7 @@ import requests,time,json
 from bs4 import BeautifulSoup
 from datetime import datetime
 from flask import Flask, jsonify, make_response, redirect, render_template, url_for, send_from_directory, request
-import urllib3
+import urllib3,os
 
 requests.packages.urllib3.disable_warnings()
 requests.packages.urllib3.util.ssl_.DEFAULT_CIPHERS += ':HIGH:!DH:!aNULL'
@@ -84,7 +84,7 @@ def api_getMovieTime(id,cinema_id):
     return jsonify(data)
 	
 if __name__ == "__main__":
-    port = 5000
+    port = int(os.environ.get("PORT", 5050))
     app.run(debug=True,host='0.0.0.0', port=port)
 
 
