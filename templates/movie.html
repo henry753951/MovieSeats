@@ -47,7 +47,7 @@
             <div class="m-5 col">
                 <h1><b>{{data.movie_title.zh_tw}}</b></h1>
                 <h3>{{data.movie_title.en_us}}</h3>
-                <div class="mt-4"><p><i style="color:rgb(197, 197, 197)" class="fas fa-calendar-alt"></i> 上映時間 :  [[ moment({{data.release_date}}).year() ]] 年</p></div>
+                <div class="mt-4"><p><i style="color:rgb(197, 197, 197)" class="fas fa-calendar-alt"></i> 上映時間 :  [[ moment('{{data.release_date}}').year() ]] 年</p></div>
                 <div class="row">
                     <div class="col-2"><p class="text-nowrap"><i style="color:orange" class="fab fa-imdb"></i>  {{ data.imdb_score }}</p></div>
                     <div class="col-2"><p class="text-nowrap"><img style="padding-bottom:10px" height="30px" src="https://www.rottentomatoes.com/assets/pizza-pie/images/favicon.ico">  {{ data.rt_score }}</p></div>
