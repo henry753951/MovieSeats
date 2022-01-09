@@ -45,7 +45,7 @@
             </div>
             <div class="col-md-8">
               <div class="card-body">
-                <button style="position: absolute;top:0;right:0" v-on:click="rmFav(item.session_id)" href="#" class="m-3 btn btn-outline-danger">X</button>
+                <button style="position: absolute;top:0;right:0" v-on:click="rmFav(item.session_id);" href="#" class="m-3 btn btn-outline-danger">X</button>
                 <h5 class="card-title" v-if="option.lang=='zh'">[[ item.session_data.booking_info.movie_title.zh_tw ]] <br><span class="my-2 badge bg-light text-dark">[[ moment(item.session_data.booking_info.show_time).format('MM/DD HH:mm') ]]</span></h5>
                 <h5 class="card-title" v-if="option.lang=='en'">[[ item.session_data.booking_info.movie_title.en_us ]] <br><span class="my-2 badge bg-light text-dark">[[ moment(item.session_data.booking_info.show_time).format('MM/DD HH:mm') ]]</span></h5>
                 <h5 class="my-3 card-text">[[ item.session_data.booking_info.cinema_name.zh_tw ]]</h5>
@@ -213,6 +213,7 @@
           if(data['status']=='succ'){
             this.loading=false;
             this.getFavs();
+            swal.fire('success', '刪除成功');
             this.status = 'succ';
           }else{
             this.loading=false;
