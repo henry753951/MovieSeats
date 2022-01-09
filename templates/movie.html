@@ -4,7 +4,6 @@
 <style>
     .mvbox{
         width: 100%;
-        height: 450px;
     }
     .background{
         background-color:rgb(28, 28, 28);
@@ -15,7 +14,7 @@
         filter: blur(10px) brightness(30%);
         position: absolute;
         width: 100%;
-        height: 450px;
+        height: 100%;
         z-index: -100;
     }
 
@@ -24,15 +23,28 @@
     <nav class="navbar navbar-dark bg-dark animate__slideInDown animate__animated animate__faster">
         <div class="container-fluid container">
             <a class="btn btn-outline-secondary me-2" :href="'../?peoples='+option.peoples" type="button"><i class="fas fa-arrow-left"></i> 返回</a>
+            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+                <span class="navbar-toggler-icon"></span>
+              </button>
+              <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                <ul class="navbar-nav w-100 me-auto mb-2 mb-lg-0 justify-content-center">
+                  <li class="nav-item">
+                    <h3><a class="nav-link" aria-current="page" :href="'../?peoples='+option.peoples">首頁</a></h3>
+                  </li>
+                  <li class="nav-item">
+                    <h3><a class="nav-link" :href="'../favorite?peoples='+option.peoples">我的最愛</a></h3>
+                  </li>
+                </ul>
+            </div>
         </div>
     </nav>
-    <div class="mvbox">
+    <div class="mvbox" style="overflow:hidden">
         <div class="background"></div>
-        <div class="d-flex flex-row align-items-end container animate__zoomIn animate__animated">
-            <div>
-                <img src="{{data.poster_url}}" class="shadow-lg" style="height:400px;margin-top:25px;margin-bottom:25px">
+        <div class="row align-items-end animate__zoomIn animate__animated">
+            <div class="col mx-1" align="center">
+                <img src="{{data.poster_url}}" class="shadow-lg" style="max-height: 400px;height:400px;margin-top:25px;margin-bottom:25px">
             </div>
-            <div class="m-5">
+            <div class="m-5 col">
                 <h1><b>{{data.movie_title.zh_tw}}</b></h1>
                 <h3>{{data.movie_title.en_us}}</h3>
                 <div class="mt-4"><p><i style="color:rgb(197, 197, 197)" class="fas fa-calendar-alt"></i> 上映時間 :  [[ moment({{data.release_date}}).year() ]] 年</p></div>
@@ -58,7 +70,7 @@
         </ul>
     </nav>
     
-    <div id="body" class="container p-3 animate__fadeIn animate__animated animate__faster" data-bs-target="#navbar-main">
+    <div id="body" class="bg-dark h-100 p-3 animate__fadeIn animate__animated animate__faster" data-bs-target="#navbar-main">
         <div class="mb-3" id="Plot">
             <div>
                 <h1>劇情大綱</h1>
@@ -86,7 +98,7 @@
             </div>
         </div>
         <hr>
-        <div class="mb-3" id="Ticket">
+        <div class="mb-3" id="Ticket" style="padding-bottom: 80px;">
             <!-- tab -->
             <template v-if="option.page=='select_cinema'">
                 <div class="row">
@@ -122,7 +134,7 @@
                         <h3>[[ locationId[item.location] ]]</h3>
                         <div class="row">
                             <div class="col-3" v-for="item in item.cinema_list">
-                                <button type="button" v-on:click="option.page='seatPage';option.select_cinema=item.cinema_id;getCinemaTimes();" class="btn btn-outline-light w-100 m-3">[[item.cinema_name.zh_tw]]</button>
+                                <button type="button" v-on:click="option.page='seatPage';option.select_cinema=item.cinema_id;getCinemaTimes();" class="btn btn-outline-light w-100 my-1">[[item.cinema_name.zh_tw]]</button>
                             </div>
                         </div>
                     </template>
@@ -219,6 +231,7 @@ var app = new Vue({
         cinemaData:{
             
             },
+        movie_id:"{{id}}",
         locationId:{
             "1":"雙北",
             "2":"桃園",
@@ -298,13 +311,49 @@ var app = new Vue({
                         <span class="badge bg-primary rounded-pill">${data.left_seats}/${data.total_seats}</span>
                         </li>
                     </ul>
+
                 </div>
                 `,
                 showCloseButton: true,
                 showCancelButton: false,
-                showConfirmButton: false
+                showConfirmButton: true,
+                confirmButtonText: '加到最愛',
+
             }
-          )
+          ).then((result) => {
+            if (result.isConfirmed) {
+                data={
+                    "type":"add",
+                    "session_id":data.session_id,
+                    "movie_id":app.movie_id
+                };
+                fetch(`/api/Fav`,
+                {
+                    body: JSON.stringify(data), // must match 'Content-Type' header
+                    cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+                    credentials: 'same-origin', // include, same-origin, *omit
+                    headers: {
+                      'user-agent': 'Mozilla/4.0 MDN Example',
+                      'content-type': 'application/json'
+                    },
+                    method: 'POST', // *GET, POST, PUT, DELETE, etc.
+                    mode: 'cors', // no-cors, cors, *same-origin
+                    redirect: 'follow', // manual, *follow, error
+                    referrer: 'no-referrer', // *client, no-referrer
+                }
+                ).then((res) => res.json()).then((data) => {
+                    if(data['status']=='succ'){
+                        
+                    }else{
+                        
+                    }
+                  })
+                  .catch((error) => {
+                    console.log(error);
+                    this.status = 'err';
+                  });
+            }
+          })
       }
     },
     delimiters: ["[[", "]]"],

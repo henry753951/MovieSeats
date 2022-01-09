@@ -1,0 +1,235 @@
+{% extends "base.html" %}
+{% block title %}我的最愛{% endblock title%}
+{% block content%}
+<style>
+  .card {
+    transition-duration: 0.5s!important;
+  }
+  .card:hover{
+    background-color:rgb(45, 45, 53)!important;
+    z-index: 100;
+  }
+</style>
+
+<div id="body" class="container p-3">
+  <nav class="navbar-dark bg-dark navbar navbar-expand-lg">
+    <div class="container">
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav w-100 me-auto mb-2 mb-lg-0 justify-content-center">
+          <li class="nav-item">
+            <h3><a class="nav-link" aria-current="page" :href="'..?peoples='+option.peoples">首頁</a></h3>
+          </li>
+          <li class="nav-item">
+            <h3><a class="nav-link active" :href="'../favorite?peoples='+option.peoples">我的最愛</a></h3>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
+  <div class="mb-3 text-center">
+    <h3>我的最愛</h3>
+  </div>
+  <div class="mb-3">
+    <div class="row">
+      <!--  -->
+      <div class="alert alert-dark animate__fadeInUp animate__animated" v-if="!loading && fav.length==0">找不到結果</div>
+      <div class="m-2" v-for="item in fav">
+
+        <div class="card">
+          <div class="row g-0">
+            <div class="col-md-4">
+              <img :src="item.session_data.booking_info.poster_url" width="100%">
+            </div>
+            <div class="col-md-8">
+              <div class="card-body">
+                <button style="position: absolute;top:0;right:0" v-on:click="rmFav(item.session_id)" href="#" class="m-3 btn btn-outline-danger">X</button>
+                <h5 class="card-title" v-if="option.lang=='zh'">[[ item.session_data.booking_info.movie_title.zh_tw ]] <br><span class="my-2 badge bg-light text-dark">[[ moment(item.session_data.booking_info.show_time).format('MM/DD HH:mm') ]]</span></h5>
+                <h5 class="card-title" v-if="option.lang=='en'">[[ item.session_data.booking_info.movie_title.en_us ]] <br><span class="my-2 badge bg-light text-dark">[[ moment(item.session_data.booking_info.show_time).format('MM/DD HH:mm') ]]</span></h5>
+                <h5 class="my-3 card-text">[[ item.session_data.booking_info.cinema_name.zh_tw ]]</h5>
+                <div class="card-text">
+                  <div class="row row-cols-auto" v-for="mv in item.session_data.list">
+                    <div class="col my-1" v-for="session in mv.sdata[0].data_session">
+                        <button class="btn btn-outline-dark" style="border-color:#6683cc;color:white" v-on:click="callSwal(session,item.session_data.booking_info)" v-if="session.session_time==item.session_data.booking_info.show_time">[[ moment(session.session_time).format("HH:mm") ]]</button>
+                        <button class="btn btn-outline-dark" style="border-color:#574461;color:white" v-on:click="callSwal(session,item.session_data.booking_info)" v-else>[[ moment(session.session_time).format("HH:mm") ]]</button>
+                    </div>
+                  </div>
+
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+      <!--  -->
+  </div>
+</div>
+
+<script>
+
+  var app = new Vue({
+    el: "#body",
+    data() {
+      return {
+          option:{
+            lang:'zh',
+            peoples:1,
+          },
+          status:'',
+          fav:[],
+          loading:false
+      };
+    },
+    mounted() {
+      this.getFavs();
+    },
+    methods: {
+      callSwal(data,moviedata){
+        Swal.fire(
+            {
+                grow:"fullscreen",
+                title:"場次資訊",
+                html:`
+                <div class="container" style="width:600px">
+                    <ul class="list-group">
+                        <li class="text-white bg-dark list-group-item d-flex justify-content-between align-items-center">
+                            電影名稱
+                            <span class="">${moviedata.movie_title.zh_tw}</span>
+                        </li>
+                        <li class="text-white bg-dark list-group-item d-flex justify-content-between align-items-center">
+                            影院
+                            <span class="">${moviedata.cinema_name.zh_tw}</span>
+                        </li>
+                        <li class="text-white bg-dark list-group-item d-flex justify-content-between align-items-center">
+                            時間
+                            <span class="badge text-dark bg-light">${moment(data.session_time).format('YYYY/MM/DD HH:mm')}</span>
+                        </li>
+                        <li class="text-white bg-dark list-group-item d-flex justify-content-between align-items-center">
+                        座位狀態
+                        <span class="badge bg-primary rounded-pill">${data.left_seats}/${data.total_seats}</span>
+                        </li>
+                    </ul>
+
+                </div>
+                `,
+                showCloseButton: true,
+                showCancelButton: false,
+                showConfirmButton: true,
+                confirmButtonText: '加到最愛',
+
+            }
+          ).then((result) => {
+            if (result.isConfirmed) {
+                data={
+                    "type":"add",
+                    "session_id":data.session_id,
+                    "movie_id":moviedata.movie_id
+                };
+                fetch(`/api/Fav`,
+                {
+                    body: JSON.stringify(data), // must match 'Content-Type' header
+                    cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+                    credentials: 'same-origin', // include, same-origin, *omit
+                    headers: {
+                      'user-agent': 'Mozilla/4.0 MDN Example',
+                      'content-type': 'application/json'
+                    },
+                    method: 'POST', // *GET, POST, PUT, DELETE, etc.
+                    mode: 'cors', // no-cors, cors, *same-origin
+                    redirect: 'follow', // manual, *follow, error
+                    referrer: 'no-referrer', // *client, no-referrer
+                }
+                ).then((res) => res.json()).then((data) => {
+                    if(data['status']=='succ'){
+                        this.getFavs();
+                    }else{
+                        
+                    }
+                  })
+                  .catch((error) => {
+                    console.log(error);
+                    this.status = 'err';
+                  });
+            }
+          })
+      },
+      getFavs() {
+        this.loading=true;
+        data={
+          "type":"get",
+        };
+        fetch(`/api/Fav`,
+        {
+            body: JSON.stringify(data), // must match 'Content-Type' header
+            cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+            credentials: 'same-origin', // include, same-origin, *omit
+            headers: {
+              'user-agent': 'Mozilla/4.0 MDN Example',
+              'content-type': 'application/json'
+            },
+            method: 'POST', // *GET, POST, PUT, DELETE, etc.
+            mode: 'cors', // no-cors, cors, *same-origin
+            redirect: 'follow', // manual, *follow, error
+            referrer: 'no-referrer', // *client, no-referrer
+        }
+        ).then((res) => res.json()).then((data) => {
+          if(data['status']=='succ'){
+            this.loading=false;
+            this.fav = data['data'];
+            this.status = 'succ';
+          }else{
+            this.loading=false;
+            throw new Error(data['status']);;
+          }
+        }).catch((error) => {
+          console.log(error);
+          this.status = 'err';
+        });
+      },
+      rmFav(id) {
+        this.loading=true;
+        data={
+          "type":"rm",
+          "id": id,
+        };
+        fetch(`/api/Fav`,
+        {
+            body: JSON.stringify(data), // must match 'Content-Type' header
+            cache: 'no-cache', // *default, no-cache, reload, force-cache, only-if-cached
+            credentials: 'same-origin', // include, same-origin, *omit
+            headers: {
+              'user-agent': 'Mozilla/4.0 MDN Example',
+              'content-type': 'application/json'
+            },
+            method: 'POST', // *GET, POST, PUT, DELETE, etc.
+            mode: 'cors', // no-cors, cors, *same-origin
+            redirect: 'follow', // manual, *follow, error
+            referrer: 'no-referrer', // *client, no-referrer
+        }
+        ).then((res) => res.json()).then((data) => {
+          if(data['status']=='succ'){
+            this.loading=false;
+            this.getFavs();
+            this.status = 'succ';
+          }else{
+            this.loading=false;
+            throw new Error(data['status']);;
+          }
+        }).catch((error) => {
+          console.log(error);
+          this.status = 'err';
+        });
+      },
+    },
+    delimiters: ["[[", "]]"],
+  });
+  const queryString = window.location.search;
+  const urlParams = new URLSearchParams(queryString);
+  if(urlParams.get('peoples')){
+    app.option.peoples = parseInt(urlParams.get('peoples'));
+  }
+</script>
+{% endblock content%}

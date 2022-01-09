@@ -1,5 +1,5 @@
 {% extends "base.html" %}
-{% block title %}電影位置查詢{% endblock title%}
+{% block title %}首頁{% endblock title%}
 {% block content%}
 <style>
   .card {
@@ -10,8 +10,25 @@
     z-index: 100;
   }
 </style>
-<div id="body" class="container p-3" hidden :hidden="pageload">
 
+<div id="body" class="container p-3" hidden :hidden="pageload">
+  <nav class="navbar-dark bg-dark navbar navbar-expand-lg">
+    <div class="container">
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+        <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
+        <ul class="navbar-nav w-100 me-auto mb-2 mb-lg-0 justify-content-center">
+          <li class="nav-item">
+            <h3><a class="nav-link active" aria-current="page" href="../">首頁</a></h3>
+          </li>
+          <li class="nav-item">
+            <h3><a class="nav-link" :href="'../favorite/?peoples='+option.peoples">我的最愛</a></h3>
+          </li>
+        </ul>
+      </div>
+    </div>
+  </nav>
   <div class="mb-3 text-center">
     <h3>電影位置查詢</h3>
   </div>
