@@ -89,7 +89,7 @@
                 <div class="">
                     {% for item in data.movie_preview %}
                     {% if 'http' in item.preview_link %}
-                        <iframe width='100%' height='600px' src='{{item.preview_link}}' frameborder='0' allowfullscreen></iframe>
+                        <iframe width='100%' height='600px' src='{{item.preview_link[5:]}}' frameborder='0' allowfullscreen></iframe>
                     {%endif %}
                     {% endfor %}
                 </div>
@@ -133,7 +133,7 @@
                         <hr>
                         <h3>[[ locationId[item.location] ]]</h3>
                         <div class="row">
-                            <div class="col-3" v-for="item in item.cinema_list">
+                            <div class="col-sm-3" v-for="item in item.cinema_list">
                                 <button type="button" v-on:click="option.page='seatPage';option.select_cinema=item.cinema_id;getCinemaTimes();" class="btn btn-outline-light w-100 my-1">[[item.cinema_name.zh_tw]]</button>
                             </div>
                         </div>
