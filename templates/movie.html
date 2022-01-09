@@ -20,23 +20,22 @@
 
 </style>
 <div id="App">
-    <nav class="navbar navbar-dark bg-dark animate__slideInDown animate__animated animate__faster">
-        <div class="container-fluid container">
-            <a class="btn btn-outline-secondary me-2" :href="'../?peoples='+option.peoples" type="button"><i class="fas fa-arrow-left"></i> 返回</a>
-            <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
-                <span class="navbar-toggler-icon"></span>
-              </button>
-              <div class="collapse navbar-collapse" id="navbarSupportedContent">
-                <ul class="navbar-nav w-100 me-auto mb-2 mb-lg-0 justify-content-center">
-                  <li class="nav-item">
-                    <h3><a class="nav-link" aria-current="page" :href="'../?peoples='+option.peoples">首頁</a></h3>
-                  </li>
-                  <li class="nav-item">
-                    <h3><a class="nav-link" :href="'../favorite?peoples='+option.peoples">我的最愛</a></h3>
-                  </li>
-                </ul>
-            </div>
+    <nav class="navbar-dark bg-dark navbar navbar-expand-lg">
+      <div class="container">
+        <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+        </button>
+        <div class="collapse navbar-collapse" id="navbarSupportedContent">
+          <ul class="navbar-nav w-100 me-auto mb-2 mb-lg-0 justify-content-center">
+            <li class="nav-item">
+              <a class="nav-link" aria-current="page" :href="'..?peoples='+option.peoples">首頁</a>
+            </li>
+            <li class="nav-item">
+              <a class="nav-link" :href="'../favorite?peoples='+option.peoples">我的最愛</a>
+            </li>
+          </ul>
         </div>
+      </div>
     </nav>
     <div class="mvbox" style="overflow:hidden">
         <div class="background"></div>
@@ -57,6 +56,11 @@
     </div>
     
     <nav id="navbar-main" style="background-color: #1a1d21!important;border-bottom: solid 1px rgb(172, 172, 172);" class="navbar navbar-expand-lg navbar-dark bg-dark bg-light px-3">
+      <a class="btn btn-outline-secondary me-2" :href="'../?peoples='+option.peoples" type="button"><i class="fas fa-arrow-left"></i> 返回</a>
+      <button class="navbar-toggler" type="button" data-bs-toggle="collapse" data-bs-target="#navbarSupportedContent" aria-controls="navbarSupportedContent" aria-expanded="false" aria-label="Toggle navigation">
+          <span class="navbar-toggler-icon"></span>
+      </button>
+      <div class="collapse navbar-collapse" id="navbarSupportedContent">
         <ul class="navbar-nav container">
           <li class="nav-item">
             <a class="nav-link" href="#Plot">劇情大綱</a>
@@ -68,6 +72,7 @@
             <a class="nav-link" href="#Ticket">位置資訊</a>
           </li>
         </ul>
+      </div>
     </nav>
     
     <div id="body" class="bg-dark h-100 p-3 animate__fadeIn animate__animated animate__faster" data-bs-target="#navbar-main">
