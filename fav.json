@@ -1,1 +1,16 @@
-{"fav": []}
+{
+  "fav": [
+    {
+      "session_id": "3437d22fd3cf4c7db5016e9d2ff0aaed",
+      "movie_id": "f363d1d58aed43c8b4464d5423da836e"
+    },
+    {
+      "session_id": "fd1eff616f6e4d008c1b7144b8e26a8b",
+      "movie_id": "f363d1d58aed43c8b4464d5423da836e"
+    },
+    {
+      "session_id": "9bd531d6e8844be894bd5d68444756dc",
+      "movie_id": "a102612f257c4dd0b7efd6c18369a5c8"
+    }
+  ]
+}
